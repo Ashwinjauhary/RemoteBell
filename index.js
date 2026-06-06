@@ -54,8 +54,8 @@ app.post('/ring-bell', async (req, res) => {
       android: {
         priority: 'high',
         notification: {
-          channelId: 'remote_bell_4', // Changed channelId again
-          sound: 'loud_bell', // NO EXTENSION FOR ANDROID!
+          channelId: 'remote_bell_5',
+          sound: 'loud_bell',
           notificationCount: 1,
         },
       },
