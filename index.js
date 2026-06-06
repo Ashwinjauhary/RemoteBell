@@ -38,17 +38,22 @@ app.post('/ring-bell', async (req, res) => {
       return res.status(400).json({ error: 'targetToken is required' });
     }
 
-    // Prepare the FCM payload
+    // DATA-ONLY payload (no "notification" block)
+    // This ensures Flutter's onBackgroundMessage handler fires
+    // and our app controls the sound/vibration itself
     const payload = {
-      notification: {
-        title: title || 'Doorbell Rung!',
-        body: message || `${senderName || 'Someone'} is at the door!`,
-      },
       data: {
+        type: 'BELL',
+        senderName: senderName || 'Someone',
+        title: title || 'Doorbell Rung!',
+        message: message || `${senderName || 'Someone'} is at the door!`,
         click_action: 'FLUTTER_NOTIFICATION_CLICK',
-        action: 'ring_bell',
       },
       token: targetToken,
+      // High priority so it wakes the device
+      android: {
+        priority: 'high',
+      },
     };
 
     // Send Push Notification via Firebase Cloud Messaging
