@@ -38,21 +38,34 @@ app.post('/ring-bell', async (req, res) => {
       return res.status(400).json({ error: 'targetToken is required' });
     }
 
-    // DATA-ONLY payload (no "notification" block)
-    // This ensures Flutter's onBackgroundMessage handler fires
-    // and our app controls the sound/vibration itself
+    // Hybrid payload: Notification + Data
+    // Android OS will handle the background notification and play the custom sound automatically
     const payload = {
+      notification: {
+        title: title || 'Doorbell Rung!',
+        body: message || `${senderName || 'Someone'} is at the door!`,
+      },
       data: {
         type: 'BELL',
         senderName: senderName || 'Someone',
-        title: title || 'Doorbell Rung!',
-        message: message || `${senderName || 'Someone'} is at the door!`,
         click_action: 'FLUTTER_NOTIFICATION_CLICK',
       },
       token: targetToken,
-      // High priority so it wakes the device
       android: {
         priority: 'high',
+        notification: {
+          channelId: 'remote_bell',
+          sound: 'loud_bell.wav',
+          notificationCount: 1,
+        },
+      },
+      apns: {
+        payload: {
+          aps: {
+            sound: 'loud_bell.wav',
+            badge: 1,
+          },
+        },
       },
     };
 
